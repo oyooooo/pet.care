@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+.pnp.*
+
+# Build output and generated types
+.next/
+out/
+build/
+dist/
+next-env.d.ts
+*.tsbuildinfo
+
+# Test output
+coverage/
+playwright-report/
+test-results/
+
+# Environment variables and private keys
+.env*
+!.env.example
+!.env.sample
+*.pem
+*.key
+
+# Logs and local caches
+*.log
+.cache/
+.npm/
+.vercel/
+
+# Editor and OS files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~

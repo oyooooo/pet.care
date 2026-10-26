@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { resolveBooking, validateBooking, legacyDraft, localDate, persistBooking, STORAGE_KEY } from '../src/lib/booking.ts';
+const today='2026-10-26';
+test('link parameters override the matching draft fields',()=>{const value=resolveBooking({petName:'奶盖',petType:'dog',service:'柔润深度养护',date:'2026-10-28',time:'14:00 – 16:00'},'cat','style',today);assert.deepEqual(value,{petName:'奶盖',petType:'cat',service:'style',date:'2026-10-28',time:'14:00 – 16:00'})});
+test('invalid parameters retain valid draft and legacy service',()=>{const value=resolveBooking({petName:'豆包',petType:'cat',service:'精细梳理洗护',date:'2026-10-25',time:'bad'},'rabbit','unknown',today);assert.equal(value.petType,'cat');assert.equal(value.service,'style');assert.equal(value.date,today);assert.equal(value.time,'10:00 – 12:00')});
+test('malformed drafts and impossible dates fall back safely',()=>{for(const raw of [null,42,'oops',[],{date:'2026-02-30',petName:42}]){const value=resolveBooking(raw,null,null,today);assert.equal(value.petName,'');assert.equal(value.date,today);assert.equal(value.service,'clean')}});
+test('save uses legacy shape and round trips',()=>{const value=resolveBooking(null,'cat','style',today);value.petName=' 奶盖 ';const draft=legacyDraft(value);assert.equal(draft.service,'精细梳理洗护');assert.equal(draft.petName,'奶盖');assert.equal(resolveBooking(draft,null,null,today).service,'style')});
+test('validation rejects whitespace, past dates and invalid dates',()=>{const value=resolveBooking(null,null,null,today);assert.ok(validateBooking(value,today));value.petName='奶盖';assert.equal(validateBooking(value,today),'');value.date='2026-10-25';assert.ok(validateBooking(value,today));value.date='2026-02-30';assert.ok(validateBooking(value,today))});
+test('local calendar date uses local time fields',()=>{assert.equal(localDate(new Date(2026,9,26,0,5)),'2026-10-26')});
+test('storage failures are reported without crashing',()=>{const value=resolveBooking(null,null,null,today);assert.equal(persistBooking(value,()=>{throw new Error('storage denied')}),false);let key='';let serialized='';assert.equal(persistBooking(value,(k,v)=>{key=k;serialized=v}),true);assert.equal(key,STORAGE_KEY);assert.equal(JSON.parse(serialized).service,'香香基础洗护')});

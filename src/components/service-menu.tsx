@@ -1,0 +1,4 @@
+import Link from 'next/link';
+import { services, serviceIds, type PetType } from '@/lib/services';
+import { ServiceIcon } from './icons';
+export function ServiceCards({pet}:{pet:PetType}){return <div className="services">{serviceIds.map((id,i)=>{const service=services[id],detail=service[pet];return <article className={`service ${id==='style'?'featured':''}`} key={id}><div className="service-head"><span className="service-icon"><ServiceIcon kind={service.icon}/></span><span className="service-number">0{i+1} / {id.toUpperCase()}</span></div><h3>{detail.title}</h3><span className="en">{service.en}</span><p>{detail.description}</p><ul>{detail.items.map(item=><li key={item}>{item}</li>)}</ul><div className="service-bottom"><span className="price"><sup>¥</sup>{detail.price}<small>起 / 次</small></span><Link className="round-button" href={`/booking?pet=${pet}&service=${id}`} aria-label={`预约${detail.title}`}>↗</Link></div></article>})}</div>}

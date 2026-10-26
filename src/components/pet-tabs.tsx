@@ -1,0 +1,5 @@
+'use client';
+import { useRef, useState } from 'react';
+import { type PetType } from '@/lib/services';
+import { ServiceCards } from './service-menu';
+export function PetTabs(){const [pet,setPet]=useState<PetType>('dog');const refs=useRef<(HTMLButtonElement|null)[]>([]);return <><div className="menu-toolbar"><span className="section-sub">选一份适合它的温柔。</span><div className="tabs" role="tablist" aria-label="选择宠物类型">{(['dog','cat'] as const).map((type,i)=><button role="tab" key={type} ref={el=>{refs.current[i]=el}} id={`${type}-tab`} aria-selected={pet===type} aria-controls="service-panel" tabIndex={pet===type?0:-1} onClick={()=>setPet(type)} onKeyDown={e=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(e.key)){e.preventDefault();const next=e.key==='Home'?0:e.key==='End'?1:1-i;setPet(next===0?'dog':'cat');refs.current[next]?.focus()}}}>{type==='dog'?'汪星人':'喵星人'}</button>)}</div></div><div role="tabpanel" id="service-panel" aria-labelledby={`${pet}-tab`} tabIndex={0}><ServiceCards pet={pet}/></div><p className="price-note">以上为概念门店的示例价格，以小型犬 / 短毛猫为参考；实际费用需根据体型、毛量与护理需求确认。</p></>}
